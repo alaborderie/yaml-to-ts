@@ -1,5 +1,6 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
+const rimraf = require('rimraf');
 
 let file = '';
 let imports = '';
@@ -18,15 +19,11 @@ const createEnum = (modelName, propertyName, enumValues) => {
         }
         enumFile += '\n';
         isFirst = false;
-        enumFile += '    ' + value.toLocaleUpperCase().replace(/ /g,'_');
+        enumFile += '    ' + value.toLocaleUpperCase().replace(/ /g, '_');
         enumFile += ' = \'' + value + '\'';
     }
     enumFile += '\n}\n';
-    fs.writeFile('dist/' + modelName.toLowerCase() + propertyName[0].toUpperCase() + propertyName.substr(1) + '.enum.ts', enumFile, (err) => {
-        if (err) {
-            console.log(err);
-        }
-    });
+    fs.writeFileSync('dist/' + modelName.toLowerCase() + propertyName[0].toUpperCase() + propertyName.substr(1) + '.enum.ts', enumFile);
 };
 
 const getTypeName = (property) => {
@@ -85,22 +82,19 @@ const createModel = (model, modelName) => {
     }
     file += '}\n';
     const result = imports.length > 0 ? imports + '\n' + file : file;
-    fs.writeFile('dist/' + modelName[0].toLowerCase() + modelName.substr(1) + '.ts', result, (err) => {
-        if (err) {
-            console.log(err);
-        }
-    });
+    fs.writeFileSync('dist/' + modelName[0].toLowerCase() + modelName.substr(1) + '.ts', result);
 };
 
 // Get document, or throw exception on error
 try {
-    if (!fs.existsSync('dist')) {
-        fs.mkdir('dist', (err) => {
-            if (err) {
-                console.log(err);
-            }
-        });
+    if (fs.existsSync('dist')) {
+        rimraf.sync('dist');
     }
+    fs.mkdir('dist', (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
     const doc = yaml.safeLoad(fs.readFileSync('./petstore.yaml', 'utf8'));
     for (let modelName of Object.keys(doc.definitions)) {
         createModel(doc.definitions[modelName], modelName);
