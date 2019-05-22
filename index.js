@@ -90,11 +90,9 @@ try {
     if (fs.existsSync('dist')) {
         rimraf.sync('dist');
     }
-    fs.mkdir('dist', (err) => {
-        if (err) {
-            console.log(err);
-        }
-    });
+
+    fs.mkdirSync('dist',);
+
     const doc = yaml.safeLoad(fs.readFileSync('./petstore.yaml', 'utf8'));
     for (let modelName of Object.keys(doc.definitions)) {
         createModel(doc.definitions[modelName], modelName);
