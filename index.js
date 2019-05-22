@@ -94,6 +94,13 @@ const createModel = (model, modelName) => {
 
 // Get document, or throw exception on error
 try {
+    if (!fs.existsSync('dist')) {
+        fs.mkdir('dist', (err) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
     const doc = yaml.safeLoad(fs.readFileSync('./petstore.yaml', 'utf8'));
     for (let modelName of Object.keys(doc.definitions)) {
         createModel(doc.definitions[modelName], modelName);
